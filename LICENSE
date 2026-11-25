@@ -19,3 +19,15 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+Third-party files
+
+This license does not cover the following files, which are not authored by
+the copyright holder above. They are color helpers distributed with Claude
+Code's mod authoring kit, copied unchanged as the kit instructs, and remain
+under the terms of their original distributor (Anthropic):
+
+- pine-lake/hooks/make-colors.js
+- pine-lake/hooks/make-colors.d.ts

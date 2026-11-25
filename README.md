@@ -40,4 +40,4 @@ Keep the scene under 131,072 characters. The app's color palette lives in `pine-
 
 ## License
 
-MIT
+MIT, except `make-colors.js` and `make-colors.d.ts` in each theme's `hooks/` folder. Those are color helpers distributed with Claude Code's mod authoring kit, copied unchanged, and stay under their original distributor's terms. See [LICENSE](./LICENSE).
