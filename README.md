@@ -1,5 +1,7 @@
 # claude-themes
 
+![Claude Themes: animated scenes and color palettes for the Claude desktop and mobile apps](./assets/banner.webp)
+
 Themes (mods) for the Claude desktop and mobile apps. Each folder is one theme; this repository is a plugin marketplace, so any theme installs with one line.
 
 ## Themes
@@ -10,6 +12,8 @@ Themes (mods) for the Claude desktop and mobile apps. Each folder is one theme; 
 | [`christmas-eve`](./christmas-eve) | A snowy Christmas night: a lit tree with gifts, a warm cabin, the moon and slow falling snow. Midnight-blue surfaces with Christmas red and gold, dark mode. |
 
 ## Install
+
+![How it works: install a theme from the caiofdev/claude-themes marketplace, from Claude Code or the desktop app, and it draws in the Claude desktop and mobile apps](./assets/how-it-works.webp)
 
 Replace `pine-lake` with the theme you want. At the prompt of a Claude Code terminal session:
 
