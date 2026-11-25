@@ -31,3 +31,5 @@ under the terms of their original distributor (Anthropic):
 
 - pine-lake/hooks/make-colors.js
 - pine-lake/hooks/make-colors.d.ts
+- christmas-eve/hooks/make-colors.js
+- christmas-eve/hooks/make-colors.d.ts
