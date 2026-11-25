@@ -1,0 +1,11 @@
+{
+  "name": "claude-themes",
+  "owner": { "name": "caiofdev" },
+  "plugins": [
+    {
+      "name": "pine-lake",
+      "source": "./pine-lake",
+      "description": "Dark pine forest above a turquoise lake, with drifting mist, as the app background"
+    }
+  ]
+}
