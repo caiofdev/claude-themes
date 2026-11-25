@@ -35,6 +35,8 @@ The background draws in the desktop and mobile apps; the terminal and editors dr
 
 ## Editing a theme
 
+![Editing a theme: edit the scene in tools/gen-scene.js, regenerate hooks/scene.ts, then tune the colors in hooks/register.tsx](./assets/editing.webp)
+
 Each scene is generated SVG. Change it in `<theme>/tools/gen-scene.js`, then regenerate:
 
 ```
