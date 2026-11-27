@@ -1,4 +1,4 @@
-import type { Register, ThemeMessageRule, ThemeSetArgs, ThemeSound } from 'claude-code'
+import type { Register, ThemeAmbience, ThemeMessageRule, ThemeResult, ThemeSetArgs, ThemeSound } from 'claude-code'
 
 import { makeColors } from './make-colors.js'
 import { SCENE } from './scene.js'
@@ -39,63 +39,92 @@ const card: ThemeMessageRule = {
   shadow: { x: 0, y: 4, blur: 12, color: '#00000099' },
 }
 
-// Rain on the window, the city's low hum and a lonely horn now and then; typewriter keys and a carriage bell for the cues.
-const SOUND: ThemeSound = {
-  ambience: {
-    reverb: 0.35,
+type Layers = ThemeAmbience['layers']
+
+// Rain on the window and the city's low hum: always the loudest thing.
+const RAIN: Layers = [
+  { wave: 'pink', drone: true, gain: 0.22, filter: { type: 'lowpass', hz: 2600 } },
+  { wave: 'crackle', scatter: 5, gain: 0.1, release: 0.05, filter: { type: 'highpass', hz: 1800 } },
+  { wave: 'brown', drone: true, gain: 0.14, filter: { type: 'lowpass', hz: 180 } },
+]
+
+// A jazz trio from a bar down the street, under the rain. The app plays a layer's notes
+// in order, `step` seconds apart, each time it falls, so each layer is a whole phrase:
+// two bars of walking bass, a piano chord, or a sax lick. Rests are 0.
+const bass = (notes: string[]) => ({
+  wave: 'triangle' as const,
+  notes,
+  step: 0.46,
+  scatter: 0.09,
+  gain: 0.075,
+  attack: 0.01,
+  release: 0.4,
+  filter: { type: 'lowpass' as const, hz: 420 },
+})
+
+const chord = (notes: string[]) => ({
+  wave: 'sine' as const,
+  notes,
+  step: 0,
+  scatter: 0.05,
+  gain: 0.035,
+  attack: 0.02,
+  release: 1.8,
+  filter: { type: 'lowpass' as const, hz: 1200 },
+})
+
+const lick = (notes: (string | number)[]) => ({
+  wave: 'triangle' as const,
+  notes,
+  step: 0.38,
+  scatter: 0.035,
+  gain: 0.05,
+  attack: 0.04,
+  release: 0.5,
+  filter: { type: 'lowpass' as const, hz: 1600 },
+  tremolo: { hz: 5, depth: 0.12 },
+})
+
+const JAZZ: Layers = [
+  // walking bass: Am7 to D7, Dm7 to G7, Cmaj7 to E7
+  bass(['A1', 'C2', 'E2', 'G2', 'D2', 'F#2', 'A2', 'C3']),
+  bass(['D2', 'F2', 'A2', 'C3', 'G1', 'B1', 'D2', 'F2']),
+  bass(['C2', 'E2', 'G2', 'B2', 'E2', 'G#2', 'B2', 'D3']),
+  // piano comping
+  chord(['A3', 'C4', 'E4', 'G4', 'B4']),
+  chord(['D3', 'F#3', 'C4', 'E4']),
+  chord(['G3', 'B3', 'F4', 'A4']),
+  chord(['C4', 'E4', 'G4', 'B4']),
+  // tenor sax licks in A minor, with a blue note
+  lick(['E4', 'G4', 'A4', 'C5', 'B4', 'A4', 'G4', 'E4']),
+  lick(['A4', 0, 'C5', 'D5', 'Eb5', 'D5', 'C5', 'A4']),
+  lick(['G4', 'A4', 'C5', 'E5', 0, 'D5', 'C5', 'A4']),
+  lick(['C5', 'B4', 'A4', 'G4', 'F#4', 'G4', 'A4', 0]),
+  // brushes on the snare
+  { wave: 'pink', scatter: 2, gain: 0.025, attack: 0.03, release: 0.14, filter: { type: 'bandpass', hz: 3200 } },
+]
+
+// Typewriter keys, a carriage bell and a few low notes for the moments the app marks.
+const CUES: ThemeSound['cues'] = {
+  send: { layers: [{ wave: 'white', gain: 0.35, attack: 0.002, release: 0.04, filter: { type: 'bandpass', hz: 3200 } }] },
+  tool: { layers: [{ wave: 'crackle', gain: 0.12, attack: 0.002, release: 0.03, filter: { type: 'highpass', hz: 2500 } }] },
+  click: { layers: [{ wave: 'white', gain: 0.12, attack: 0.002, release: 0.02, filter: { type: 'bandpass', hz: 4000 } }] },
+  done: {
+    reverb: 0.25,
     layers: [
-      { wave: 'pink', drone: true, gain: 0.22, filter: { type: 'lowpass', hz: 2600 } },
-      { wave: 'crackle', scatter: 5, gain: 0.1, release: 0.05, filter: { type: 'highpass', hz: 1800 } },
-      { wave: 'brown', drone: true, gain: 0.14, filter: { type: 'lowpass', hz: 180 } },
-      {
-        wave: 'triangle',
-        notes: ['A3', 'C4', 'D4', 'Eb4', 'E4', 'G4'],
-        scatter: 0.05,
-        gain: 0.07,
-        attack: 0.4,
-        release: 2.6,
-        filter: { type: 'lowpass', hz: 1300 },
-        tremolo: { hz: 5, depth: 0.15 },
-      },
-      // A jazz trio from a bar down the street, under the rain: a held A minor seventh,
-      // a walking bass, brushes on a snare and a few soft piano notes.
-      { wave: 'sine', notes: ['A2', 'E3', 'G3', 'C4'], drone: true, gain: 0.05, filter: { type: 'lowpass', hz: 700 }, tremolo: { hz: 0.2, depth: 0.3 } },
-      {
-        wave: 'triangle',
-        notes: ['A1', 'C2', 'D2', 'Eb2', 'E2', 'G2'],
-        scatter: 1.3,
-        gain: 0.08,
-        attack: 0.01,
-        release: 0.5,
-        filter: { type: 'lowpass', hz: 380 },
-      },
-      { wave: 'pink', scatter: 1.6, gain: 0.03, attack: 0.03, release: 0.14, filter: { type: 'bandpass', hz: 3200 } },
-      {
-        wave: 'bell',
-        notes: ['A4', 'C5', 'D5', 'E5', 'G5'],
-        scatter: 0.22,
-        gain: 0.035,
-        release: 1.2,
-        filter: { type: 'lowpass', hz: 2400 },
-      },
+      { wave: 'white', gain: 0.18, attack: 0.01, release: 0.3, filter: { type: 'bandpass', hz: 1400, to: 500 } },
+      { wave: 'bell', notes: ['A6'], gain: 0.22, release: 1.2 },
     ],
   },
-  cues: {
-    send: { layers: [{ wave: 'white', gain: 0.35, attack: 0.002, release: 0.04, filter: { type: 'bandpass', hz: 3200 } }] },
-    tool: { layers: [{ wave: 'crackle', gain: 0.12, attack: 0.002, release: 0.03, filter: { type: 'highpass', hz: 2500 } }] },
-    click: { layers: [{ wave: 'white', gain: 0.12, attack: 0.002, release: 0.02, filter: { type: 'bandpass', hz: 4000 } }] },
-    done: {
-      reverb: 0.25,
-      layers: [
-        { wave: 'white', gain: 0.18, attack: 0.01, release: 0.3, filter: { type: 'bandpass', hz: 1400, to: 500 } },
-        { wave: 'bell', notes: ['A6'], gain: 0.22, release: 1.2 },
-      ],
-    },
-    ask: { layers: [{ wave: 'triangle', notes: ['E4', 'G4'], step: 0.18, gain: 0.25, release: 0.6, filter: { type: 'lowpass', hz: 1800 } }] },
-    error: { layers: [{ wave: 'triangle', notes: ['A2', 'Ab2'], step: 0.25, gain: 0.3, release: 0.7, glide: -1 }] },
-    compact: { layers: [{ wave: 'pink', gain: 0.2, attack: 0.05, release: 0.4, filter: { type: 'bandpass', hz: 900, to: 2600 } }] },
-  },
+  ask: { layers: [{ wave: 'triangle', notes: ['E4', 'G4'], step: 0.18, gain: 0.25, release: 0.6, filter: { type: 'lowpass', hz: 1800 } }] },
+  error: { layers: [{ wave: 'triangle', notes: ['A2', 'Ab2'], step: 0.25, gain: 0.3, release: 0.7, glide: -1 }] },
+  compact: { layers: [{ wave: 'pink', gain: 0.2, attack: 0.05, release: 0.4, filter: { type: 'bandpass', hz: 900, to: 2600 } }] },
 }
+
+const SOUND: ThemeSound = { ambience: { reverb: 0.3, layers: [...RAIN, ...JAZZ] }, cues: CUES }
+
+// If the app finds the band too much to work out, the rain plays alone.
+const RAIN_ONLY: ThemeSound = { ambience: { reverb: 0.3, layers: RAIN }, cues: CUES }
 
 const STYLED: ThemeSetArgs = {
   ...LOOK,
@@ -130,20 +159,20 @@ export const register: Register = on => {
     if (unpainted !== undefined) {
       $.ui.toast(unpainted)
     }
-    let set
+    let set: ThemeResult | undefined
 
-    try {
-      set = await $.theme.set({ ...STYLED, sound: SOUND })
-    } catch (soundError) {
-      // A build that doesn't take `sound` or `style`, or a value out of range: step down until one takes.
-      $.ui.log(String(soundError))
+    // Step down until one takes: the whole band, the rain alone, no sound, no style.
+    const tries: ThemeSetArgs[] = [{ ...STYLED, sound: SOUND }, { ...STYLED, sound: RAIN_ONLY }, STYLED]
+
+    for (const look of tries) {
       try {
-        set = await $.theme.set(STYLED)
-      } catch (styleError) {
-        $.ui.log(String(styleError))
-        set = await $.theme.set(LOOK)
+        set = await $.theme.set(look)
+        break
+      } catch (error) {
+        $.ui.log(String(error))
       }
     }
+    set ??= await $.theme.set(LOOK)
 
     if (!set.isDrawn) {
       $.ui.status(set.reason)
