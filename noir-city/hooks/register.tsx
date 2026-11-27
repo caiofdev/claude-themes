@@ -51,57 +51,43 @@ const RAIN: Layers = [
 // A jazz trio from a bar down the street, under the rain. The app plays a layer's notes
 // in order, `step` seconds apart, each time it falls, so each layer is a whole phrase:
 // two bars of walking bass, a piano chord, or a sax lick. Rests are 0.
-const bass = (notes: string[]) => ({
-  wave: 'triangle' as const,
-  notes,
-  step: 0.46,
-  scatter: 0.09,
-  gain: 0.075,
-  attack: 0.01,
-  release: 0.4,
-  filter: { type: 'lowpass' as const, hz: 420 },
-})
-
-const chord = (notes: string[]) => ({
-  wave: 'sine' as const,
-  notes,
-  step: 0,
-  scatter: 0.05,
-  gain: 0.035,
-  attack: 0.02,
-  release: 1.8,
-  filter: { type: 'lowpass' as const, hz: 1200 },
-})
-
-const lick = (notes: (string | number)[]) => ({
-  wave: 'triangle' as const,
-  notes,
-  step: 0.38,
-  scatter: 0.035,
-  gain: 0.05,
-  attack: 0.04,
-  release: 0.5,
-  filter: { type: 'lowpass' as const, hz: 1600 },
-  tremolo: { hz: 5, depth: 0.12 },
-})
-
+// Kept small on purpose: the app refuses a sound that is too much to work out,
+// and many notes, long releases and reverb cost the most.
 const JAZZ: Layers = [
-  // walking bass: Am7 to D7, Dm7 to G7, Cmaj7 to E7
-  bass(['A1', 'C2', 'E2', 'G2', 'D2', 'F#2', 'A2', 'C3']),
-  bass(['D2', 'F2', 'A2', 'C3', 'G1', 'B1', 'D2', 'F2']),
-  bass(['C2', 'E2', 'G2', 'B2', 'E2', 'G#2', 'B2', 'D3']),
-  // piano comping
-  chord(['A3', 'C4', 'E4', 'G4', 'B4']),
-  chord(['D3', 'F#3', 'C4', 'E4']),
-  chord(['G3', 'B3', 'F4', 'A4']),
-  chord(['C4', 'E4', 'G4', 'B4']),
-  // tenor sax licks in A minor, with a blue note
-  lick(['E4', 'G4', 'A4', 'C5', 'B4', 'A4', 'G4', 'E4']),
-  lick(['A4', 0, 'C5', 'D5', 'Eb5', 'D5', 'C5', 'A4']),
-  lick(['G4', 'A4', 'C5', 'E5', 0, 'D5', 'C5', 'A4']),
-  lick(['C5', 'B4', 'A4', 'G4', 'F#4', 'G4', 'A4', 0]),
-  // brushes on the snare
-  { wave: 'pink', scatter: 2, gain: 0.025, attack: 0.03, release: 0.14, filter: { type: 'bandpass', hz: 3200 } },
+  // walking bass, Am7 to D7
+  {
+    wave: 'triangle',
+    notes: ['A1', 'C2', 'E2', 'D2', 'F#2', 'A2'],
+    step: 0.5,
+    scatter: 0.12,
+    gain: 0.12,
+    attack: 0.01,
+    release: 0.25,
+    filter: { type: 'lowpass', hz: 420 },
+  },
+  // a soft piano chord, Am7
+  { wave: 'sine', notes: ['A3', 'C4', 'G4'], step: 0, scatter: 0.08, gain: 0.06, attack: 0.02, release: 0.8 },
+  // two sax licks in A minor, the second with a blue note
+  {
+    wave: 'triangle',
+    notes: ['E4', 'G4', 'A4', 'C5', 'A4'],
+    step: 0.4,
+    scatter: 0.04,
+    gain: 0.09,
+    attack: 0.04,
+    release: 0.3,
+    filter: { type: 'lowpass', hz: 1600 },
+  },
+  {
+    wave: 'triangle',
+    notes: ['A4', 'C5', 'Eb5', 'D5', 'C5'],
+    step: 0.4,
+    scatter: 0.04,
+    gain: 0.09,
+    attack: 0.04,
+    release: 0.3,
+    filter: { type: 'lowpass', hz: 1600 },
+  },
 ]
 
 // Typewriter keys, a carriage bell and a few low notes for the moments the app marks.
@@ -121,10 +107,10 @@ const CUES: ThemeSound['cues'] = {
   compact: { layers: [{ wave: 'pink', gain: 0.2, attack: 0.05, release: 0.4, filter: { type: 'bandpass', hz: 900, to: 2600 } }] },
 }
 
-const SOUND: ThemeSound = { ambience: { reverb: 0.3, layers: [...RAIN, ...JAZZ] }, cues: CUES }
+const SOUND: ThemeSound = { ambience: { layers: [...RAIN, ...JAZZ] }, cues: CUES }
 
 // If the app finds the band too much to work out, the rain plays alone.
-const RAIN_ONLY: ThemeSound = { ambience: { reverb: 0.3, layers: RAIN }, cues: CUES }
+const RAIN_ONLY: ThemeSound = { ambience: { layers: RAIN }, cues: CUES }
 
 const STYLED: ThemeSetArgs = {
   ...LOOK,
@@ -164,12 +150,17 @@ export const register: Register = on => {
     // Step down until one takes: the whole band, the rain alone, no sound, no style.
     const tries: ThemeSetArgs[] = [{ ...STYLED, sound: SOUND }, { ...STYLED, sound: RAIN_ONLY }, STYLED]
 
-    for (const look of tries) {
+    for (const [i, look] of tries.entries()) {
       try {
         set = await $.theme.set(look)
         break
       } catch (error) {
         $.ui.log(String(error))
+
+        if (i === 0) {
+          // Say why the band was dropped, so the sound can be tuned.
+          $.ui.toast(`noir-city: jazz off, rain only. ${String(error)}`)
+        }
       }
     }
     set ??= await $.theme.set(LOOK)
