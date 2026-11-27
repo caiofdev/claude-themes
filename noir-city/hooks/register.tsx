@@ -1,5 +1,6 @@
 import type { Register, ThemeAmbience, ThemeMessageRule, ThemeResult, ThemeSetArgs, ThemeSound } from 'claude-code'
 
+import { LABELS, iconSvg, kindOf } from './icons.js'
 import { makeColors } from './make-colors.js'
 import { SCENE } from './scene.js'
 
@@ -210,5 +211,41 @@ export const register: Register = on => {
     const { Svg } = $.ui.resolve(e)
 
     return <Svg source={SCENE} alt="A rainy black-and-white city at night, a lone figure in a hat under a street lamp" />
+  })
+
+  // An ink-stamp icon beside each tool row, so it reads at a glance what is being done.
+  on('ui.render', { component: 'ToolUse' }, async ($, e, next) => {
+    if (e.surface !== 'desktop') {
+      return next(e)
+    }
+    const row = await next(e)
+    const { Box, Svg } = $.ui.resolve(e)
+    const kind = kindOf(e.props.tool)
+
+    return (
+      <Box flexDirection="row" alignItems="center" gap={1}>
+        <Svg source={iconSvg(kind, e.props.isErrored)} alt={LABELS[kind]} width={16} height={16} />
+        {row}
+      </Box>
+    )
+  })
+
+  // A folded run of calls ("read 3 files, searched code") gets one icon for each kind in it.
+  on('ui.render', { component: 'ToolGroup' }, async ($, e, next) => {
+    if (e.surface !== 'desktop') {
+      return next(e)
+    }
+    const row = await next(e)
+    const { Box, Svg } = $.ui.resolve(e)
+    const kinds = [...new Set(e.props.calls.map(call => kindOf(call.tool)))].slice(0, 4)
+
+    return (
+      <Box flexDirection="row" alignItems="center" gap={1}>
+        {kinds.map(kind => (
+          <Svg source={iconSvg(kind)} alt={LABELS[kind]} width={16} height={16} />
+        ))}
+        {row}
+      </Box>
+    )
   })
 }
