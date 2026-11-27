@@ -1,4 +1,4 @@
-import type { Register, ThemeMessageRule, ThemeSetArgs } from 'claude-code'
+import type { Register, ThemeMessageRule, ThemeSetArgs, ThemeSound } from 'claude-code'
 
 import { makeColors } from './make-colors.js'
 import { SCENE } from './scene.js'
@@ -39,6 +39,43 @@ const card: ThemeMessageRule = {
   shadow: { x: 0, y: 4, blur: 12, color: '#00000099' },
 }
 
+// Rain on the window, the city's low hum and a lonely horn now and then; typewriter keys and a carriage bell for the cues.
+const SOUND: ThemeSound = {
+  ambience: {
+    reverb: 0.35,
+    layers: [
+      { wave: 'pink', drone: true, gain: 0.22, filter: { type: 'lowpass', hz: 2600 } },
+      { wave: 'crackle', scatter: 5, gain: 0.1, release: 0.05, filter: { type: 'highpass', hz: 1800 } },
+      { wave: 'brown', drone: true, gain: 0.14, filter: { type: 'lowpass', hz: 180 } },
+      {
+        wave: 'triangle',
+        notes: ['A3', 'C4', 'D4', 'Eb4', 'E4', 'G4'],
+        scatter: 0.05,
+        gain: 0.1,
+        attack: 0.4,
+        release: 2.6,
+        filter: { type: 'lowpass', hz: 1300 },
+        tremolo: { hz: 5, depth: 0.15 },
+      },
+    ],
+  },
+  cues: {
+    send: { layers: [{ wave: 'white', gain: 0.35, attack: 0.002, release: 0.04, filter: { type: 'bandpass', hz: 3200 } }] },
+    tool: { layers: [{ wave: 'crackle', gain: 0.12, attack: 0.002, release: 0.03, filter: { type: 'highpass', hz: 2500 } }] },
+    click: { layers: [{ wave: 'white', gain: 0.12, attack: 0.002, release: 0.02, filter: { type: 'bandpass', hz: 4000 } }] },
+    done: {
+      reverb: 0.25,
+      layers: [
+        { wave: 'white', gain: 0.18, attack: 0.01, release: 0.3, filter: { type: 'bandpass', hz: 1400, to: 500 } },
+        { wave: 'bell', notes: ['A6'], gain: 0.22, release: 1.2 },
+      ],
+    },
+    ask: { layers: [{ wave: 'triangle', notes: ['E4', 'G4'], step: 0.18, gain: 0.25, release: 0.6, filter: { type: 'lowpass', hz: 1800 } }] },
+    error: { layers: [{ wave: 'triangle', notes: ['A2', 'Ab2'], step: 0.25, gain: 0.3, release: 0.7, glide: -1 }] },
+    compact: { layers: [{ wave: 'pink', gain: 0.2, attack: 0.05, release: 0.4, filter: { type: 'bandpass', hz: 900, to: 2600 } }] },
+  },
+}
+
 const STYLED: ThemeSetArgs = {
   ...LOOK,
   style: {
@@ -75,11 +112,16 @@ export const register: Register = on => {
     let set
 
     try {
-      set = await $.theme.set(STYLED)
-    } catch (error) {
-      // A build that doesn't take `style`, or a value out of range: keep the look without it.
-      $.ui.log(String(error))
-      set = await $.theme.set(LOOK)
+      set = await $.theme.set({ ...STYLED, sound: SOUND })
+    } catch (soundError) {
+      // A build that doesn't take `sound` or `style`, or a value out of range: step down until one takes.
+      $.ui.log(String(soundError))
+      try {
+        set = await $.theme.set(STYLED)
+      } catch (styleError) {
+        $.ui.log(String(styleError))
+        set = await $.theme.set(LOOK)
+      }
     }
 
     if (!set.isDrawn) {
