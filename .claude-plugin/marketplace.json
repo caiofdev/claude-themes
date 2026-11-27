@@ -16,6 +16,11 @@
       "name": "atacama-night",
       "source": "./atacama-night",
       "description": "A desert night sky with the Milky Way, galaxies and an old bus on the horizon, as the app background"
+    },
+    {
+      "name": "noir-city",
+      "source": "./noir-city",
+      "description": "A rainy black-and-white city night with a street lamp and a lone figure in a hat, as the app background"
     }
   ]
 }
