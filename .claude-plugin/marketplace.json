@@ -11,6 +11,11 @@
       "name": "christmas-eve",
       "source": "./christmas-eve",
       "description": "A snowy Christmas night with a lit tree, a warm cabin and falling snow, as the app background"
+    },
+    {
+      "name": "atacama-night",
+      "source": "./atacama-night",
+      "description": "A desert night sky with the Milky Way, galaxies and an old bus on the horizon, as the app background"
     }
   ]
 }

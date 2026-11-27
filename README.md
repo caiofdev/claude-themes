@@ -10,6 +10,7 @@ Themes (mods) for the Claude desktop and mobile apps. Each folder is one theme; 
 | --- | --- |
 | [`pine-lake`](./pine-lake) | A dark pine forest above a turquoise lake, with slow drifting mist. Deep pine-green surfaces with a turquoise accent, dark mode. |
 | [`christmas-eve`](./christmas-eve) | A snowy Christmas night: a lit tree with gifts, a warm cabin, the moon and slow falling snow. Midnight-blue surfaces with Christmas red and gold, dark mode. |
+| [`atacama-night`](./atacama-night) | A desert night sky inspired by the Atacama: the Milky Way, the Magellanic Clouds, a distant galaxy, slow-twinkling stars, a rare shooting star and an old bus on the horizon. Night-blue surfaces with lavender and desert amber, dark mode. |
 
 ## Install
 
