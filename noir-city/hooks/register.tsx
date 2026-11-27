@@ -48,46 +48,44 @@ const RAIN: Layers = [
   { wave: 'brown', drone: true, gain: 0.14, filter: { type: 'lowpass', hz: 180 } },
 ]
 
-// A jazz trio from a bar down the street, under the rain. The app plays a layer's notes
-// in order, `step` seconds apart, each time it falls, so each layer is a whole phrase:
-// two bars of walking bass, a piano chord, or a sax lick. Rests are 0.
+// A slow, dark jazz from a bar down the street, under the rain: a lone tenor sax over
+// a low bass and a half-diminished chord, in D minor. The app plays a layer's notes in
+// order, `step` seconds apart, each time it falls, so each layer is a whole phrase.
 // Kept small on purpose: the app refuses a sound that is too much to work out,
 // and many notes, long releases and reverb cost the most.
+const sax = (notes: string[]) => ({
+  // A sawtooth through a low filter reads as a reed; the tremolo is its vibrato,
+  // and each note sags a little at the end, as a tired player's does.
+  wave: 'saw' as const,
+  notes,
+  step: 0.7,
+  scatter: 0.035,
+  gain: 0.1,
+  attack: 0.12,
+  release: 0.7,
+  glide: -0.4,
+  filter: { type: 'lowpass' as const, hz: 900 },
+  tremolo: { hz: 4.5, depth: 0.18 },
+})
+
 const JAZZ: Layers = [
-  // walking bass, Am7 to D7
+  // a slow bass, one note to the bar: D, A, F, A
   {
     wave: 'triangle',
-    notes: ['A1', 'C2', 'E2', 'D2', 'F#2', 'A2'],
-    step: 0.5,
-    scatter: 0.12,
+    notes: ['D2', 'A1', 'F1', 'A1'],
+    step: 1,
+    scatter: 0.09,
     gain: 0.12,
-    attack: 0.01,
-    release: 0.25,
-    filter: { type: 'lowpass', hz: 420 },
+    attack: 0.02,
+    release: 0.6,
+    filter: { type: 'lowpass', hz: 300 },
   },
-  // a soft piano chord, Am7
-  { wave: 'sine', notes: ['A3', 'C4', 'G4'], step: 0, scatter: 0.08, gain: 0.06, attack: 0.02, release: 0.8 },
-  // two sax licks in A minor, the second with a blue note
-  {
-    wave: 'triangle',
-    notes: ['E4', 'G4', 'A4', 'C5', 'A4'],
-    step: 0.4,
-    scatter: 0.04,
-    gain: 0.09,
-    attack: 0.04,
-    release: 0.3,
-    filter: { type: 'lowpass', hz: 1600 },
-  },
-  {
-    wave: 'triangle',
-    notes: ['A4', 'C5', 'Eb5', 'D5', 'C5'],
-    step: 0.4,
-    scatter: 0.04,
-    gain: 0.09,
-    attack: 0.04,
-    release: 0.3,
-    filter: { type: 'lowpass', hz: 1600 },
-  },
+  // a low half-diminished chord, Dm7b5, under it all
+  { wave: 'sine', notes: ['D3', 'F3', 'Ab3', 'C4'], step: 0, scatter: 0.05, gain: 0.05, attack: 0.3, release: 1.2, filter: { type: 'lowpass', hz: 800 } },
+  // the sax: three falling minor phrases, with the flat fifth of the blues
+  sax(['A3', 'C4', 'D4', 'Ab3', 'G3']),
+  sax(['D4', 'F4', 'E4', 'C4', 'A3']),
+  sax(['F3', 'Ab3', 'G3', 'F3', 'D3']),
 ]
 
 // Typewriter keys, a carriage bell and a few low notes for the moments the app marks.
