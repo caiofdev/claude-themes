@@ -29,15 +29,40 @@ const LOOK: ThemeSetArgs = {
   backdrop: { scene: 'noir-city', glass: { blur: 14, tint: '#0c0c0d', opacity: 0.6 } },
 }
 
-// Typed case notes: the person's messages are aged index cards pinned at a slant,
-// Claude's replies are typed on a dark file card with a red margin line.
-const card: ThemeMessageRule = {
+// Typed case notes. The person's messages are sheets just pulled from the typewriter:
+// aged paper with a red header rule and a faint blue line, a paperclip at the top and a
+// coffee ring in the corner. Claude's replies are a dark carbon copy with a red margin
+// and a typed double rule across the top.
+//
+// The drawings are cut in nine (`slice`: top, right, bottom and left, in viewBox units,
+// two points each, as `size` doubles the drawing): the corners draw once, so the paperclip and the stain keep their size,
+// and the edges and middle stretch to fit any message.
+const sheet = (paper: `#${string}`): ThemeMessageRule => ({
   color: '#1b1a18',
-  backgroundColor: '#e6e0cf',
-  radius: 2,
-  padding: 16,
+  backgroundColor: paper,
+  paddingTop: 44,
+  paddingRight: 24,
+  paddingBottom: 22,
+  paddingLeft: 22,
   shadow: { x: 0, y: 4, blur: 12, color: '#00000099' },
-}
+  fill: {
+    vector: {
+      viewBox: [64, 48],
+      size: [128, 96],
+      slice: [20, 22, 14, 10],
+      paths: [
+        { d: 'M0 0H64V48H0Z', color: paper }, // the paper
+        { d: 'M0 45H64V48H0Z', color: '#cfc6ae' }, // an aged lower edge
+        { d: 'M0 12H64V13H0Z', color: '#d0606a' }, // the red header rule
+        { d: 'M0 17H64V17.6H0Z', color: '#9fb3c8' }, // a faint blue line
+        // a paperclip over the top edge
+        { d: 'M50 1V13Q50 16 53 16Q56 16 56 13V3Q56 1 54 1Q52 1 52 3V12', strokeWidth: 1.8, color: '#7d8287' },
+        // a coffee ring in the lower right corner
+        { d: 'M57 41A5 5 0 1 1 47 41A5 5 0 1 1 57 41Z', strokeWidth: 1.5, color: '#b39a6e' },
+      ],
+    },
+  },
+})
 
 type Layers = ThemeAmbience['layers']
 
@@ -115,11 +140,12 @@ const RAIN_ONLY: ThemeSound = { ambience: { layers: RAIN }, cues: CUES }
 const STYLED: ThemeSetArgs = {
   ...LOOK,
   style: {
-    Text: { fontFamily: ['mono'], fontSize: 15, lineHeight: 24, letterSpacing: 0.2 },
-    Heading: { fontFamily: ['serif'], fontWeight: 'bold', letterSpacing: 1.5 },
+    // Typewriter type: monospaced, a little loose, as each key strikes its own cell.
+    Text: { fontFamily: ['mono'], fontSize: 15, lineHeight: 25, letterSpacing: 0.5 },
+    Heading: { fontFamily: ['mono'], fontWeight: 'bold', letterSpacing: 2.5 },
     UserMessage: [
-      { ...card, rotate: -1 },
-      { ...card, backgroundColor: '#ddd6c2', rotate: 0.8 },
+      { ...sheet('#e6e0cf'), rotate: -1 },
+      { ...sheet('#ddd6c2'), rotate: 0.8 },
     ],
     AssistantMessage: {
       color: '#ededeb',
@@ -128,13 +154,17 @@ const STYLED: ThemeSetArgs = {
       borderWidth: 1,
       radius: 2,
       padding: 18,
+      paddingTop: 24,
       paddingLeft: 26,
+      shadow: { x: 0, y: 3, blur: 10, color: '#00000088' },
       fill: { vector: { viewBox: 64, slice: 16, paths: [
-        { d: 'M0 0H64V64H0Z', color: '#121213' },
-        { d: 'M14 0H16V64H14Z', color: '#c43d48' },
+        { d: 'M0 0H64V64H0Z', color: '#121213' }, // the carbon sheet
+        { d: 'M14 0H16V64H14Z', color: '#c43d48' }, // the red margin
+        { d: 'M0 6H64V7H0ZM0 9H64V9.6H0Z', color: '#3a3a3d' }, // a typed double rule
       ] } },
     },
-    ToolUse: { color: '#c4c4c0', fontFamily: ['mono'], backgroundColor: '#0f0f10', radius: 2, paddingX: 8 },
+    // A tool call reads as a line typed on a paper label.
+    ToolUse: { color: '#1b1a18', fontFamily: ['mono'], backgroundColor: '#d6cfba', radius: 1, paddingX: 8 },
   },
 }
 
