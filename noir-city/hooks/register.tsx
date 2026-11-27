@@ -52,7 +52,8 @@ const RAIN: Layers = [
 // a low bass and a half-diminished chord, in D minor. The app plays a layer's notes in
 // order, `step` seconds apart, each time it falls, so each layer is a whole phrase,
 // and each falls often enough that one phrase follows another, as in a song.
-// Kept small on purpose: the app refuses a sound that is too much to work out,
+// Kept small on purpose: an ambience holds at most 8 layers (3 are the rain), and the
+// app refuses a sound that is too much to work out;
 // and many notes, long releases and reverb cost the most.
 const sax = (notes: string[]) => ({
   // A sawtooth through a low filter reads as a reed; the tremolo is its vibrato,
@@ -83,8 +84,6 @@ const JAZZ: Layers = [
   },
   // a low half-diminished chord, Dm7b5, held under it all and breathing slowly
   { wave: 'sine', notes: ['D3', 'F3', 'Ab3', 'C4'], drone: true, gain: 0.04, filter: { type: 'lowpass', hz: 800 }, tremolo: { hz: 0.15, depth: 0.35 } },
-  // brushes on the snare, keeping time
-  { wave: 'pink', scatter: 2.2, gain: 0.03, attack: 0.03, release: 0.12, filter: { type: 'bandpass', hz: 3200 } },
   // the sax: three falling minor phrases, with the flat fifth of the blues
   sax(['A3', 'C4', 'D4', 'Ab3', 'G3']),
   sax(['D4', 'F4', 'E4', 'C4', 'A3']),
